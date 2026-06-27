@@ -13,3 +13,5 @@
 - 修正项目技术栈描述: 移除脚本语言方案，改为纯 C++/蓝图 GOAP 架构；更新 Thought 文档和 SVG 实现边界。
 
 - 补充 GOAP A* 建模说明: 解释为什么搜索节点是 WorldState 而不是 Action，以及 State 在排序、去重、终止判断、启发函数和回溯中的作用。
+- 新增 WorldState 设计讨论: 评估 Settings 注册 State Key、Action 下拉选择、运行期 Index/Mask 编译、类型校验和 Registry 生命周期方案。
+- 继续 WorldState 实现讨论: 确认 KeyDef.Type 为权威类型、InState/OutState 改为 Preconditions/Effects，并补充 Mask、Registry、FGuid、DefaultValue、运行层分离等判断理由。
