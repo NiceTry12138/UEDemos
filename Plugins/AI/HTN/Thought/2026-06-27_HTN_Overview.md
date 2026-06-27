@@ -1,4 +1,4 @@
-# HTN 算法原理、代码框架、计算过程与 UE 插件实现方案
+﻿# HTN 算法原理、代码框架、计算过程与 UE 插件实现方案
 
 本文记录 HTN（Hierarchical Task Network，分层任务网络）学习与实现设计。范围限定在 `Plugins/AI/HTN` 插件内，当前不修改功能代码。
 
@@ -217,16 +217,11 @@ Plugins/AI/HTN/
     AI/
       HTN/
         DA_HTNDomain.uasset
-  Scripts/
-    HTN/
-      tasks.lua
-      methods.lua
-      operators.lua
   Thought/
   UpdateLog/
 ```
 
-建议 C++ 负责核心规划和 UE 生命周期，Lua 负责配置任务、条件、方法和操作器 glue 逻辑。
+建议 C++ 负责核心规划、运行时执行和 UE 生命周期；任务库、方法库、操作器配置通过 `UDataAsset` / 蓝图派生类暴露给设计侧。第一版尽量让计划期条件和效果数据化，避免在 Planner 高频搜索中大量调用蓝图逻辑。
 
 ### 6.1 C++ 类型草案
 
@@ -293,52 +288,72 @@ public:
 };
 ```
 
-### 6.2 Lua 配置草案
+### 6.2 DataAsset / 蓝图配置草案
 
-```lua
-return {
-  tasks = {
-    HandleEnemy = {
-      type = "compound",
-      methods = { "RangedAttack", "MeleeAttack" }
-    },
-    ReloadWeapon = {
-      type = "primitive",
-      operator = "OpReloadWeapon"
-    },
-    MoveToCover = {
-      type = "primitive",
-      operator = "OpMoveToCover"
-    },
-    ShootEnemy = {
-      type = "primitive",
-      operator = "OpShootEnemy"
-    }
-  },
+```cpp
+UCLASS(BlueprintType)
+class UHTNDomainDataAsset : public UDataAsset
+{
+    GENERATED_BODY()
 
-  methods = {
-    RangedAttack = {
-      preconditions = {
-        { key = "EnemyVisible", op = "==", value = true },
-        { key = "WeaponReady", op = "==", value = true }
-      },
-      subtasks = { "EnsureAmmo", "MoveToCover", "ShootEnemy" }
-    }
-  },
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TMap<FName, TObjectPtr<UHTNTask>> Tasks;
 
-  operators = {
-    OpReloadWeapon = {
-      preconditions = {
-        { key = "CanReload", op = "==", value = true }
-      },
-      effects = {
-        { key = "Ammo", op = "set", value = 30 }
-      }
-    }
-  }
-}
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TMap<FName, TObjectPtr<UHTNOperator>> Operators;
+};
+
+UCLASS(BlueprintType, Blueprintable, Abstract)
+class UHTNOperator : public UObject
+{
+    GENERATED_BODY()
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    FName OperatorId;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<FHTNCondition> Preconditions;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    TArray<FHTNEffect> PlanEffects;
+
+    UFUNCTION(BlueprintNativeEvent)
+    EHTNOperatorResult StartOperator(AActor* OwnerActor);
+
+    UFUNCTION(BlueprintNativeEvent)
+    EHTNOperatorResult TickOperator(AActor* OwnerActor, float DeltaSeconds);
+
+    UFUNCTION(BlueprintNativeEvent)
+    void AbortOperator(AActor* OwnerActor);
+};
 ```
 
+蓝图侧使用方式：
+
+```text
+DA_HTNDomain
+  Tasks
+    HandleEnemy
+      Type = Compound
+      Methods = RangedAttack, MeleeAttack
+
+    ReloadWeapon
+      Type = Primitive
+      Operator = BP_HTNOp_ReloadWeapon
+
+  Methods
+    RangedAttack
+      Preconditions = EnemyVisible == true, WeaponReady == true
+      SubTasks = EnsureAmmo, MoveToCover, ShootEnemy
+
+  Operators
+    BP_HTNOp_ReloadWeapon
+      Preconditions = CanReload == true
+      PlanEffects = Ammo set 30
+      Runtime Logic = 蓝图或 C++ 重写 Start/Tick/Abort
+```
 ## 7. UE 实现方案
 
 ### 阶段 1：最小可用 Planner
@@ -361,13 +376,13 @@ return {
   - 计划过期。
   - 外部强制切换 RootTask。
 
-### 阶段 3：Lua Domain 接入
+### 阶段 3：DataAsset Domain 与蓝图扩展
 
-- C++ 提供 Domain Loader。
-- Lua 返回 tasks/methods/operators 表。
-- C++ 解析成运行时对象。
-- Lua 可提供自定义 condition/operator callback，但核心搜索仍在 C++。
-
+- C++ 提供 `UHTNDomainDataAsset`，集中保存 tasks/methods/operators。
+- 设计侧在 Content 下创建 `DA_HTNDomain`，通过编辑器配置任务拆解。
+- 原子动作使用 `UHTNOperator` C++ 基类，可派生蓝图类实现运行时 Start/Tick/Abort。
+- Planner 只读取 DataAsset 里的数据化条件和效果；复杂运行逻辑留到 Executor 阶段。
+- 必要时提供 `UHTNConditionProvider` 蓝图扩展点，但默认不在高频搜索路径依赖蓝图回调。
 ### 阶段 4：调试与可视化
 
 - 输出每次规划展开 trace。
@@ -385,7 +400,7 @@ return {
 - 递归爆炸：必须有最大深度、最大展开节点、最大耗时。
 - Method 顺序过强：需要优先级或评分，否则行为容易被配置顺序锁死。
 - Effect 与真实执行不一致：计划认为成功，实际世界失败，必须重规划。
-- Lua 回调过重：规划可能频繁运行，Lua 条件要缓存或限流。
+- 蓝图回调过重：规划可能频繁运行，计划期条件建议数据化或 C++ 化，蓝图主要负责低频运行时动作。
 - Debug 缺失：HTN 失败时很难看懂，trace 是必需功能。
 - UE 对象生命周期：Planner 内部搜索不应持有易失 Actor 强引用，推荐用弱引用或上下文查询。
 

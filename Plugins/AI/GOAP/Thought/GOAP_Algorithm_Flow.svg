@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
   <defs>
     <style>
       .bg { fill: #f7f8fb; }
@@ -111,7 +111,7 @@
   <rect class="warn" x="770" y="540" width="300" height="126" />
   <text class="section" x="796" y="570">实现边界</text>
   <text class="small" x="796" y="598">C++: 状态、搜索、队列、性能</text>
-  <text class="small" x="796" y="620">Lua: 条件声明、动作执行、快速迭代</text>
+  <text class="small" x="796" y="620">蓝图: 配置 Action / Goal 与执行事件</text>
   <text class="small" x="796" y="642">Planner 不产生真实副作用</text>
 
   <path class="line" d="M310 372 L196 536" />
@@ -122,4 +122,5 @@
   <path class="dashed" d="M545 540 L545 494 L1030 494" />
   <text class="tiny" x="570" y="518">执行失败、Goal 变化、Action 失效时触发 Replan</text>
 </svg>
+
 

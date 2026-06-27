@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="760" viewBox="0 0 1220 760">
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="760" viewBox="0 0 1220 760">
   <defs>
     <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#34495e"/>
@@ -18,7 +18,7 @@
 
   <rect x="0" y="0" width="1220" height="760" fill="#f6f8fb"/>
   <text x="40" y="44" class="title">HTN 插件架构：任务分解、计划生成、计划执行</text>
-  <text x="40" y="70" class="tiny">核心搜索在 C++，配置与扩展可由 Lua 提供；所有正式功能留在 Plugins/AI/HTN 插件内。</text>
+  <text x="40" y="70" class="tiny">核心搜索在 C++，配置由 DataAsset 和蓝图提供；所有正式功能留在 Plugins/AI/HTN 插件内。</text>
 
   <rect x="40" y="105" width="245" height="560" fill="#e8f3ff" class="box"/>
   <text x="70" y="140" class="section">输入层</text>
@@ -34,8 +34,8 @@
   <text x="92" y="448" class="small">Tasks</text>
   <text x="92" y="468" class="small">Methods / Operators</text>
   <rect x="70" y="515" width="185" height="78" fill="#ffffff" class="box"/>
-  <text x="92" y="544" class="label">Lua Config</text>
-  <text x="92" y="568" class="small">条件、拆解、效果</text>
+  <text x="92" y="544" class="label">DataAsset / BP</text>
+  <text x="92" y="568" class="small">任务、方法、操作器</text>
 
   <rect x="345" y="105" width="520" height="560" fill="#eef9f1" class="box"/>
   <text x="375" y="140" class="section">C++ Planner 核心</text>
