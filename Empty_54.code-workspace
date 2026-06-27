@@ -1,0 +1,40 @@
+﻿{
+  "folders": [
+    {
+      "name": "Empty_54",
+      "path": "."
+    },
+    {
+      "name": "Plugins",
+      "path": "Plugins"
+    },
+    {
+      "name": "Engine",
+      "path": "S:\\UnrealEngine\\UE_5.4\\Engine"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.vs": true,
+      "**/.vscode": true,
+      "**/Content": true,
+      "**/Saved": true,
+      "**/Intermediate": true,
+      "**/DerivedDataCache": true,
+      "**/Binaries": true,
+      "**/Build": true,
+      "**/__ExternalActors__": true,
+      "**/__ExternalObjects__": true
+    },
+    "search.exclude": {
+      "**/Content": true,
+      "**/Saved": true,
+      "**/Intermediate": true,
+      "**/DerivedDataCache": true,
+      "**/Binaries": true,
+      "**/Build": true,
+      "**/__ExternalActors__": true,
+      "**/__ExternalObjects__": true
+    }
+  }
+}

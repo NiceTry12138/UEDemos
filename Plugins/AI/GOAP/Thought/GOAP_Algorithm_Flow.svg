@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760">
+  <defs>
+    <style>
+      .bg { fill: #f7f8fb; }
+      .title { font: 700 24px "Microsoft YaHei", Arial, sans-serif; fill: #18212f; }
+      .subtitle { font: 14px "Microsoft YaHei", Arial, sans-serif; fill: #4d5b6d; }
+      .section { font: 700 17px "Microsoft YaHei", Arial, sans-serif; fill: #22324a; }
+      .label { font: 14px "Microsoft YaHei", Arial, sans-serif; fill: #203040; }
+      .small { font: 12px "Microsoft YaHei", Arial, sans-serif; fill: #536273; }
+      .tiny { font: 11px "Microsoft YaHei", Arial, sans-serif; fill: #5e6a78; }
+      .box { fill: #ffffff; stroke: #cad2dd; stroke-width: 1.4; rx: 8; }
+      .state { fill: #e9f2ff; stroke: #4f7fc8; stroke-width: 1.5; rx: 8; }
+      .goal { fill: #e8f7ef; stroke: #40966a; stroke-width: 1.5; rx: 8; }
+      .action { fill: #fff4dc; stroke: #c58b21; stroke-width: 1.5; rx: 8; }
+      .planner { fill: #f0ecff; stroke: #7b62c7; stroke-width: 1.6; rx: 8; }
+      .exec { fill: #eef8f7; stroke: #3a918c; stroke-width: 1.5; rx: 8; }
+      .warn { fill: #fff0f1; stroke: #bf5964; stroke-width: 1.4; rx: 8; }
+      .line { fill: none; stroke: #526273; stroke-width: 2; marker-end: url(#arrow); }
+      .dashed { fill: none; stroke: #7c8796; stroke-width: 1.7; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+      .num { fill: #25364d; font: 700 13px Arial, sans-serif; }
+      .badge { fill: #dce5f2; stroke: #9fb0c5; stroke-width: 1; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#526273" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1180" height="760" />
+  <text class="title" x="40" y="44">GOAP 算法原理与运行流程</text>
+  <text class="subtitle" x="40" y="70">从当前世界状态出发，通过 Action 的 Preconditions / Effects 搜索到满足 Goal 的最低代价动作序列。</text>
+
+  <!-- top data model row -->
+  <rect class="state" x="50" y="110" width="220" height="116" />
+  <text class="section" x="74" y="140">World State</text>
+  <text class="small" x="74" y="165">HasWeapon = true</text>
+  <text class="small" x="74" y="184">Ammo = 0</text>
+  <text class="small" x="74" y="203">EnemyVisible = true</text>
+
+  <rect class="goal" x="350" y="110" width="220" height="116" />
+  <text class="section" x="374" y="140">Goal</text>
+  <text class="small" x="374" y="165">EnemyAlive = false</text>
+  <text class="small" x="374" y="184">Priority = 100</text>
+  <text class="small" x="374" y="203">选择当前最重要目标</text>
+
+  <rect class="action" x="650" y="110" width="220" height="116" />
+  <text class="section" x="674" y="140">Action Set</text>
+  <text class="small" x="674" y="165">Reload / Aim / Shoot</text>
+  <text class="small" x="674" y="184">Preconditions + Effects</text>
+  <text class="small" x="674" y="203">Cost 决定路径优先级</text>
+
+  <rect class="planner" x="950" y="110" width="180" height="116" />
+  <text class="section" x="974" y="140">Planner</text>
+  <text class="small" x="974" y="165">A* / Dijkstra</text>
+  <text class="small" x="974" y="184">搜索状态图</text>
+  <text class="small" x="974" y="203">生成 Plan</text>
+
+  <path class="line" d="M270 168 L346 168" />
+  <path class="line" d="M570 168 L646 168" />
+  <path class="line" d="M870 168 L946 168" />
+
+  <!-- planning loop -->
+  <rect class="box" x="60" y="296" width="190" height="76" />
+  <circle class="badge" cx="86" cy="322" r="13" />
+  <text class="num" x="82" y="327">1</text>
+  <text class="label" x="112" y="320">取 OpenSet</text>
+  <text class="small" x="112" y="342">F = G + H 最低节点</text>
+
+  <rect class="box" x="310" y="296" width="190" height="76" />
+  <circle class="badge" cx="336" cy="322" r="13" />
+  <text class="num" x="332" y="327">2</text>
+  <text class="label" x="362" y="320">检查 Goal</text>
+  <text class="small" x="362" y="342">满足则回溯 Plan</text>
+
+  <rect class="box" x="560" y="296" width="190" height="76" />
+  <circle class="badge" cx="586" cy="322" r="13" />
+  <text class="num" x="582" y="327">3</text>
+  <text class="label" x="612" y="320">遍历 Action</text>
+  <text class="small" x="612" y="342">匹配 Preconditions</text>
+
+  <rect class="box" x="810" y="296" width="190" height="76" />
+  <circle class="badge" cx="836" cy="322" r="13" />
+  <text class="num" x="832" y="327">4</text>
+  <text class="label" x="862" y="320">应用 Effects</text>
+  <text class="small" x="862" y="342">生成 NextState</text>
+
+  <rect class="box" x="935" y="430" width="190" height="76" />
+  <circle class="badge" cx="961" cy="456" r="13" />
+  <text class="num" x="957" y="461">5</text>
+  <text class="label" x="987" y="454">计算代价</text>
+  <text class="small" x="987" y="476">G + H 后入队</text>
+
+  <path class="line" d="M250 334 L306 334" />
+  <path class="line" d="M500 334 L556 334" />
+  <path class="line" d="M750 334 L806 334" />
+  <path class="line" d="M905 372 L1005 426" />
+  <path class="dashed" d="M935 468 L665 468 L665 376" />
+
+  <!-- plan output and execution -->
+  <rect class="goal" x="70" y="540" width="250" height="126" />
+  <text class="section" x="96" y="570">Plan 输出</text>
+  <text class="label" x="96" y="598">Reload -> Aim -> Shoot</text>
+  <text class="small" x="96" y="622">每个 Action 顺序执行</text>
+  <text class="small" x="96" y="642">失败或世界变化时重新规划</text>
+
+  <rect class="exec" x="420" y="540" width="250" height="126" />
+  <text class="section" x="446" y="570">Execution</text>
+  <text class="small" x="446" y="598">CanRun 二次校验</text>
+  <text class="small" x="446" y="620">Start / Tick / Abort</text>
+  <text class="small" x="446" y="642">成功出队，失败 Replan</text>
+
+  <rect class="warn" x="770" y="540" width="300" height="126" />
+  <text class="section" x="796" y="570">实现边界</text>
+  <text class="small" x="796" y="598">C++: 状态、搜索、队列、性能</text>
+  <text class="small" x="796" y="620">Lua: 条件声明、动作执行、快速迭代</text>
+  <text class="small" x="796" y="642">Planner 不产生真实副作用</text>
+
+  <path class="line" d="M310 372 L196 536" />
+  <path class="line" d="M320 603 L416 603" />
+  <path class="line" d="M670 603 L766 603" />
+
+  <!-- lower feedback -->
+  <path class="dashed" d="M545 540 L545 494 L1030 494" />
+  <text class="tiny" x="570" y="518">执行失败、Goal 变化、Action 失效时触发 Replan</text>
+</svg>
+

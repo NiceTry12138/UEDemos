@@ -1,0 +1,117 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860">
+  <defs>
+    <marker id="arrow2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#3f4d5a"/>
+    </marker>
+    <style>
+      text { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; fill: #1f2d3d; }
+      .title { font-size: 24px; font-weight: 700; }
+      .head { font-size: 17px; font-weight: 700; }
+      .label { font-size: 14px; font-weight: 600; }
+      .small { font-size: 12px; }
+      .tiny { font-size: 11px; fill: #52616f; }
+      .box { stroke: #314250; stroke-width: 1.4; rx: 8; }
+      .line { stroke: #3f4d5a; stroke-width: 2; fill: none; marker-end: url(#arrow2); }
+      .dash { stroke: #697b8c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow2); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="860" fill="#f7f8fa"/>
+  <text x="42" y="42" class="title">HTN 规划计算过程：HandleEnemy 示例</text>
+  <text x="42" y="69" class="tiny">输入状态：EnemyVisible=true，WeaponReady=true，Ammo=0，HasCover=true，Distance=1200。</text>
+
+  <rect x="42" y="98" width="285" height="660" fill="#e8f3ff" class="box"/>
+  <text x="72" y="132" class="head">任务分解树</text>
+  <rect x="82" y="165" width="205" height="54" fill="#ffffff" class="box"/>
+  <text x="122" y="198" class="label">HandleEnemy</text>
+
+  <rect x="82" y="270" width="205" height="66" fill="#ffffff" class="box"/>
+  <text x="119" y="297" class="label">RangedAttack</text>
+  <text x="116" y="318" class="small">条件通过，展开子任务</text>
+
+  <rect x="82" y="392" width="205" height="58" fill="#ffffff" class="box"/>
+  <text x="124" y="427" class="label">EnsureAmmo</text>
+
+  <rect x="62" y="510" width="115" height="70" fill="#ffe6e1" class="box"/>
+  <text x="79" y="538" class="label">HaveAmmo</text>
+  <text x="82" y="560" class="small">失败 Ammo=0</text>
+  <rect x="195" y="510" width="115" height="70" fill="#e8f8ef" class="box"/>
+  <text x="231" y="538" class="label">Reload</text>
+  <text x="214" y="560" class="small">通过</text>
+
+  <rect x="62" y="640" width="248" height="58" fill="#ffffff" class="box"/>
+  <text x="96" y="675" class="label">ReloadWeapon -> MoveToCover -> ShootEnemy</text>
+
+  <path d="M184 219 V266" class="line"/>
+  <path d="M184 336 V388" class="line"/>
+  <path d="M184 450 V485 H120 V506" class="line"/>
+  <path d="M184 450 V485 H252 V506" class="line"/>
+  <path d="M252 580 V618 H186 V636" class="line"/>
+
+  <rect x="385" y="98" width="390" height="660" fill="#eef9f1" class="box"/>
+  <text x="415" y="132" class="head">递归搜索栈</text>
+
+  <rect x="420" y="165" width="320" height="56" fill="#ffffff" class="box"/>
+  <text x="445" y="194" class="label">1. Pop: HandleEnemy</text>
+  <text x="445" y="213" class="small">复合任务，枚举 Method</text>
+  <rect x="420" y="250" width="320" height="70" fill="#ffffff" class="box"/>
+  <text x="445" y="279" class="label">2. Select: RangedAttack</text>
+  <text x="445" y="300" class="small">前置条件 EnemyVisible &amp;&amp; WeaponReady 通过</text>
+  <rect x="420" y="350" width="320" height="70" fill="#ffffff" class="box"/>
+  <text x="445" y="379" class="label">3. Push subtasks</text>
+  <text x="445" y="400" class="small">EnsureAmmo, MoveToCover, ShootEnemy</text>
+  <rect x="420" y="450" width="320" height="70" fill="#ffffff" class="box"/>
+  <text x="445" y="479" class="label">4. EnsureAmmo 回溯选择</text>
+  <text x="445" y="500" class="small">HaveAmmo 失败，Reload 通过</text>
+  <rect x="420" y="550" width="320" height="70" fill="#ffffff" class="box"/>
+  <text x="445" y="579" class="label">5. Primitive 检查和应用效果</text>
+  <text x="445" y="600" class="small">ReloadWeapon: Ammo 0 -> 30</text>
+  <rect x="420" y="650" width="320" height="62" fill="#fff8e6" class="box"/>
+  <text x="445" y="679" class="label">6. 输出计划</text>
+  <text x="445" y="700" class="small">所有任务被原子动作替换</text>
+
+  <path d="M580 221 V246" class="line"/>
+  <path d="M580 320 V346" class="line"/>
+  <path d="M580 420 V446" class="line"/>
+  <path d="M580 520 V546" class="line"/>
+  <path d="M580 620 V646" class="line"/>
+
+  <rect x="835" y="98" width="395" height="660" fill="#fff0ef" class="box"/>
+  <text x="865" y="132" class="head">模拟世界状态与计划</text>
+
+  <rect x="870" y="165" width="325" height="88" fill="#ffffff" class="box"/>
+  <text x="900" y="194" class="label">S0 初始状态</text>
+  <text x="900" y="216" class="small">Ammo=0, InCover=false</text>
+  <text x="900" y="236" class="small">EnemyVisible=true, WeaponReady=true</text>
+
+  <rect x="870" y="300" width="325" height="82" fill="#ffffff" class="box"/>
+  <text x="900" y="329" class="label">执行预测：ReloadWeapon</text>
+  <text x="900" y="352" class="small">前置条件通过</text>
+  <text x="900" y="372" class="small">Effect: Ammo = 30</text>
+
+  <rect x="870" y="430" width="325" height="82" fill="#ffffff" class="box"/>
+  <text x="900" y="459" class="label">执行预测：MoveToCover</text>
+  <text x="900" y="482" class="small">Effect: InCover = true</text>
+  <text x="900" y="502" class="small">计划状态更新，不改真实 Actor</text>
+
+  <rect x="870" y="560" width="325" height="82" fill="#ffffff" class="box"/>
+  <text x="900" y="589" class="label">执行预测：ShootEnemy</text>
+  <text x="900" y="612" class="small">Effect: EnemyAlive=false</text>
+  <text x="900" y="632" class="small">Effect: Ammo = 29</text>
+
+  <rect x="870" y="690" width="325" height="42" fill="#e8f8ef" class="box"/>
+  <text x="900" y="717" class="label">Plan: ReloadWeapon -> MoveToCover -> ShootEnemy</text>
+
+  <path d="M1032 253 V296" class="line"/>
+  <path d="M1032 382 V426" class="line"/>
+  <path d="M1032 512 V556" class="line"/>
+  <path d="M1032 642 V686" class="line"/>
+
+  <path d="M327 668 H416" class="dash"/>
+  <text x="340" y="648" class="tiny">原子任务序列</text>
+  <path d="M740 681 H866" class="dash"/>
+  <text x="772" y="659" class="tiny">模拟状态生成计划</text>
+
+  <rect x="42" y="785" width="1188" height="42" fill="#ffffff" class="box"/>
+  <text x="70" y="811" class="small">重规划触发：Operator 执行失败、关键 World State 改变、计划过期、RootTask 被外部切换。失败后回到 Planner，用最新真实状态重新搜索。</text>
+</svg>

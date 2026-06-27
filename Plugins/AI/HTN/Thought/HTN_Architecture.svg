@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1220" height="760" viewBox="0 0 1220 760">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#34495e"/>
+    </marker>
+    <style>
+      text { font-family: "Microsoft YaHei", "Segoe UI", Arial, sans-serif; fill: #1f2d3d; }
+      .title { font-size: 24px; font-weight: 700; }
+      .section { font-size: 18px; font-weight: 700; }
+      .label { font-size: 15px; font-weight: 600; }
+      .small { font-size: 13px; }
+      .tiny { font-size: 12px; fill: #52616f; }
+      .box { stroke: #2f4050; stroke-width: 1.5; rx: 8; }
+      .line { stroke: #34495e; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #5d6d7e; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1220" height="760" fill="#f6f8fb"/>
+  <text x="40" y="44" class="title">HTN 插件架构：任务分解、计划生成、计划执行</text>
+  <text x="40" y="70" class="tiny">核心搜索在 C++，配置与扩展可由 Lua 提供；所有正式功能留在 Plugins/AI/HTN 插件内。</text>
+
+  <rect x="40" y="105" width="245" height="560" fill="#e8f3ff" class="box"/>
+  <text x="70" y="140" class="section">输入层</text>
+  <rect x="70" y="170" width="185" height="72" fill="#ffffff" class="box"/>
+  <text x="92" y="198" class="label">Root Task</text>
+  <text x="92" y="222" class="small">高层目标任务</text>
+  <rect x="70" y="275" width="185" height="86" fill="#ffffff" class="box"/>
+  <text x="92" y="304" class="label">World State</text>
+  <text x="92" y="328" class="small">HP / 弹药 / 距离</text>
+  <text x="92" y="348" class="small">目标 / 掩体 / 冷却</text>
+  <rect x="70" y="395" width="185" height="86" fill="#ffffff" class="box"/>
+  <text x="92" y="424" class="label">HTN Domain</text>
+  <text x="92" y="448" class="small">Tasks</text>
+  <text x="92" y="468" class="small">Methods / Operators</text>
+  <rect x="70" y="515" width="185" height="78" fill="#ffffff" class="box"/>
+  <text x="92" y="544" class="label">Lua Config</text>
+  <text x="92" y="568" class="small">条件、拆解、效果</text>
+
+  <rect x="345" y="105" width="520" height="560" fill="#eef9f1" class="box"/>
+  <text x="375" y="140" class="section">C++ Planner 核心</text>
+  <rect x="380" y="170" width="200" height="76" fill="#ffffff" class="box"/>
+  <text x="410" y="199" class="label">Task Resolver</text>
+  <text x="410" y="223" class="small">识别复合 / 原子任务</text>
+  <rect x="630" y="170" width="200" height="76" fill="#ffffff" class="box"/>
+  <text x="660" y="199" class="label">Method Selector</text>
+  <text x="660" y="223" class="small">检查前置条件与优先级</text>
+  <rect x="380" y="290" width="200" height="86" fill="#ffffff" class="box"/>
+  <text x="410" y="319" class="label">State Simulator</text>
+  <text x="410" y="343" class="small">复制状态</text>
+  <text x="410" y="363" class="small">应用预测效果</text>
+  <rect x="630" y="290" width="200" height="86" fill="#ffffff" class="box"/>
+  <text x="660" y="319" class="label">Search Stack</text>
+  <text x="660" y="343" class="small">DFS / 回溯</text>
+  <text x="660" y="363" class="small">深度与节点限制</text>
+  <rect x="380" y="425" width="450" height="96" fill="#ffffff" class="box"/>
+  <text x="410" y="456" class="label">Plan Builder</text>
+  <text x="410" y="482" class="small">输出 Primitive Operator 序列</text>
+  <text x="410" y="504" class="small">附带 trace、失败原因、状态快照</text>
+  <rect x="380" y="555" width="450" height="76" fill="#fff8e6" class="box"/>
+  <text x="410" y="585" class="label">Debug Trace</text>
+  <text x="410" y="609" class="small">记录 Method 命中、条件失败、回溯路径</text>
+
+  <rect x="925" y="105" width="255" height="560" fill="#fff0ef" class="box"/>
+  <text x="955" y="140" class="section">执行层</text>
+  <rect x="955" y="175" width="190" height="82" fill="#ffffff" class="box"/>
+  <text x="985" y="204" class="label">UHTNComponent</text>
+  <text x="985" y="228" class="small">持有当前计划</text>
+  <text x="985" y="248" class="small">驱动 Tick 执行</text>
+  <rect x="955" y="300" width="190" height="82" fill="#ffffff" class="box"/>
+  <text x="985" y="329" class="label">Operator Runner</text>
+  <text x="985" y="353" class="small">Start / Tick / Finish</text>
+  <text x="985" y="373" class="small">Abort / Fail</text>
+  <rect x="955" y="425" width="190" height="82" fill="#ffffff" class="box"/>
+  <text x="985" y="454" class="label">Replan Policy</text>
+  <text x="985" y="478" class="small">失败、过期、状态变化</text>
+  <text x="985" y="498" class="small">触发重新规划</text>
+  <rect x="955" y="550" width="190" height="78" fill="#ffffff" class="box"/>
+  <text x="985" y="579" class="label">AI 行为输出</text>
+  <text x="985" y="603" class="small">移动、射击、交互</text>
+
+  <path d="M255 206 H376" class="line"/>
+  <path d="M255 318 H330 V208 H376" class="line"/>
+  <path d="M255 438 H330 V208 H376" class="line"/>
+  <path d="M580 208 H626" class="line"/>
+  <path d="M730 246 V286" class="line"/>
+  <path d="M630 333 H584" class="line"/>
+  <path d="M480 376 V421" class="line"/>
+  <path d="M830 473 H951" class="line"/>
+  <path d="M1050 257 V296" class="line"/>
+  <path d="M1050 382 V421" class="line"/>
+  <path d="M1050 507 V546" class="line"/>
+  <path d="M955 466 H885 V592 H834" class="dash"/>
+
+  <text x="296" y="193" class="tiny">目标任务</text>
+  <text x="296" y="304" class="tiny">状态快照</text>
+  <text x="878" y="454" class="tiny">Plan</text>
+  <text x="760" y="611" class="tiny">失败 trace 回流</text>
+</svg>

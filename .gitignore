@@ -1,0 +1,28 @@
+﻿# Unreal generated
+.vs/
+.vscode/
+Saved/
+Intermediate/
+DerivedDataCache/
+Binaries/
+Build/
+Content/
+
+# External actor/object packages
+Content/**/__ExternalActors__/
+Content/**/__ExternalObjects__/
+
+# Plugin generated
+Plugins/**/Saved/
+Plugins/**/Intermediate/
+Plugins/**/DerivedDataCache/
+Plugins/**/Binaries/
+Plugins/**/Build/
+
+# Common IDE artifacts
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
