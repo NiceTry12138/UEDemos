@@ -6,11 +6,11 @@ Intermediate/
 DerivedDataCache/
 Binaries/
 Build/
-Content/
+/Content/
 
-# External actor/object packages
-Content/**/__ExternalActors__/
-Content/**/__ExternalObjects__/
+# Root project external actor/object packages
+/Content/**/__ExternalActors__/
+/Content/**/__ExternalObjects__/
 
 # Plugin generated
 Plugins/**/Saved/

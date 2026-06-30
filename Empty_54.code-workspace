@@ -17,24 +17,24 @@
     "files.exclude": {
       "**/.vs": true,
       "**/.vscode": true,
-      "**/Content": true,
+      "Content": true,
       "**/Saved": true,
       "**/Intermediate": true,
       "**/DerivedDataCache": true,
       "**/Binaries": true,
       "**/Build": true,
-      "**/__ExternalActors__": true,
-      "**/__ExternalObjects__": true
+      "Content/**/__ExternalActors__": true,
+      "Content/**/__ExternalObjects__": true
     },
     "search.exclude": {
-      "**/Content": true,
+      "Content": true,
       "**/Saved": true,
       "**/Intermediate": true,
       "**/DerivedDataCache": true,
       "**/Binaries": true,
       "**/Build": true,
-      "**/__ExternalActors__": true,
-      "**/__ExternalObjects__": true
+      "Content/**/__ExternalActors__": true,
+      "Content/**/__ExternalObjects__": true
     }
   }
 }
