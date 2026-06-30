@@ -534,6 +534,187 @@ HTN 的成本主要来自 Method 分支数量和任务深度。
 - `MaxPlanningTimeMs`：最大规划耗时。
 - `MaxPlanSteps`：最大原子动作数。
 
+## 我的理解（错误纠正）
+
+之前的理解
+
+我这样理解 HTN 是否正确
+1. 有一系列具体行为称之为原子任务，原子任务有自己执行的条件，这个条件在规划的时候称为 Plan Precondition；在执行时称为 Runtime Precondition
+2. 把一系列原子任务组合起来的称之为复合任务，它定义了一系列行为，要顺序执行这些行为，复合任务可以有 Subtask Precondtion，决定这个复合任务能否执行
+3. 复合任务可以组合其他复合任务
+4. 最顶层的任务可以定义 Method Precondition 来决定这个复合任务能否执行
+5. 定义一个数组来列举这些顶层任务 [A、B、C、D]，执行的时候需要根据预设的 WorldState 从列举的这些顶层任务中选择一个可以执行的顶层任务？顶层任务里面的复合任务还能选吗？还是说顶层任务里面的复合任务也得顺序执行？
+
+### 错误1
+
+错误：复合任务定义了一系列行为,要顺序执行
+
+纠正：复合任务本身不直接定义行为序列, 它定义的是 "分解策略的集合"(Methods)
+
+```
+复合任务 (Compound Task)
+├── Method A: 策略一  ← 这里才有子任务列表
+│   └── SubTasks: [子任务1, 子任务2, 子任务3]
+├── Method B: 策略二
+│   └── SubTasks: [子任务X, 子任务Y]
+└── Method C: 策略三
+    └── SubTasks: [子任务M]
+```
+
+复合任务的语义是: **"我有多种实现方式,你选一种"**, 而不是 "我就是这一串行为"
+
+```
+HandleEnemy (复合任务)
+├── Method RangedAttack: [EnsureAmmo, MoveToCover, ShootEnemy]
+├── Method MeleeAttack:  [MoveToEnemy, MeleeHit]
+└── Method Flee:         [FindEscapeRoute, RunAway]
+```
+
+`HandleEnemy` 是一个复合任务,它内部定义了三种分解策略(Methods): `RangedAttack`、`MeleeAttack` 、`Flee`, `Planner` 从这三种策略中选一个执行
+被选中策略(比如 `RangedAttack`)的子任务列表 [`EnsureAmmo`, `MoveToCover`, `ShootEnemy`] 会按顺序执行。
+
+如果一个复合任务确实只有"一种实现方式、必须顺序执行",那它就只有一个 Method——这种特例叫 Sequence Compound Task, 但本质上还是"一个有唯一 Method 的 Compound Task"
+
+### 错误2
+
+错误：复合任务可以有 SubTask Precondition
+
+纠正：没有 SubTask Precondition 这种东西，SubTask Precondition 不是独立的硬概念。
+
+复合任务上真正有的 Precondition 叫 Method Precondition——每个 Method 各有一组
+
+```
+HandleEnemy (复合任务)
+├── Method RangedAttack
+│   Precondition: EnemyVisible && WeaponReady   ← 这是 Method Precondition
+│   SubTasks: [EnsureAmmo, MoveToCover, ShootEnemy]
+├── Method MeleeAttack
+│   Precondition: DistanceToEnemy < 200          ← 这是 Method Precondition
+│   SubTasks: [MoveToEnemy, MeleeHit]
+```
+
+### 错误3
+
+错误：`Precondition` 决定这个复合任务能否执行
+纠正：`Method Precondition` 决定的不是"复合任务能否执行",而是 "这个 Method(策略)是否适用"
+
+Planner 处理一个复合任务时:
+
+1. 按顺序遍历每个 Method
+2. 检查 Method Precondition,选第一个通过的
+3. 用这个 Method 的 SubTasks 替换掉当前复合任务
+4. 继续递归处理
+
+### 错误4
+
+错误：最顶层的任务可以定义 Method Precondition 来决定这个复合任务能否执行
+
+纠正：Method Precondition 不是顶层任务专属, 而是每一层复合任务的每个 Method 都有
+
+```
+顶层 HandleEnemy
+├── Method A1: Precondition...  ← 顶层的 Method Precondition
+│   └── SubTasks: [EnsureAmmo, ...]
+│
+└── 嵌套 EnsureAmmo (它本身也是复合任务)
+    ├── Method B1: Precondition...  ← 嵌套层的 Method Precondition (一样存在!)
+    └── Method B2: Precondition...  ← 嵌套层的 Method Precondition
+```
+
+任何复合任务,不管在哪一层,都通过 Method Precondition 来选择分解策略
+
+### 错误5
+
+错误：定义一个数组来列举这些顶层任务 `[A、B、C、D]`, 执行的时候需要根据预设的 WorldState 从列举的这些顶层任务中选择一个可以执行的顶层任务?顶层任务里面的复合任务还能选吗?还是说顶层任务里面的复合任务也得顺序执行?
+
+纠正：HTN 不是 从一组顶层任务里选一个。HTN 只有一个 RootTask(根任务),不是一个数组
+
+```cpp
+输入:
+  RootTask = HandleEnemy   ← 单个,不是数组
+  InitialWorldState = {...}
+
+规划过程:
+  TaskStack = [HandleEnemy]
+  → 展开 HandleEnemy 的某个 Method
+  → 继续展开子任务
+  → ...直到全部变成 Operator
+```
+
+所谓的 `[A、B、C、D]` 可以封装为 RootTask 的 4 个 Method
+
+关于问题
+
+- 顶层任务里面的复合任务还能选吗?
+  - 能选，复合任务本身一旦出现在 SubTasks 里,就一定要被处理(不能被跳过),但怎么处理(走哪个 Method)是要选的
+- 还是说顶层任务里面的复合任务也得顺序执行?
+  - Method 选中后,该 Method 的 SubTasks 必须顺序执行。但每个 SubTask 自己如果是复合任务,还要继续选 Method
+
+### 运行时的模型
+
+```
+RootTask = AIDecide   (这是唯一的根)
+
+AIDecide (复合任务,扮演"选行为"的角色)
+├── Method ChooseFlee
+│   Precondition: HP < 30                  ← 危险时优先逃跑
+│   SubTasks: [FleeBehavior]
+├── Method ChooseAttack
+│   Precondition: EnemyVisible             ← 看到敌人就战斗
+│   SubTasks: [HandleEnemy]
+├── Method ChooseInvestigate
+│   Precondition: HeardNoise               ← 听到声音去侦查
+│   SubTasks: [InvestigateBehavior]
+└── Method ChoosePatrol
+    Precondition: (无条件,兜底)            ← 什么都没有就巡逻
+    SubTasks: [PatrolBehavior]
+```
+
+`FleeBehavior`, `HandleEnemy`, `InvestigateBehavior`, `PatrolBehavior` 都是复合任务,各自又有自己的 `Method` 集合,继续分解。
+
+- "选择行为"在 HTN 里是通过 `Method` 之间的 `Precondition` + 顺序优先级 实现的
+- 整个 AI 决策树就是 `RootTask` 这一棵分解树
+- `Method Precondition` 的顺序就是"行为优先级"——危险逃跑优先于战斗,战斗优先于侦查,侦查优先于巡逻
+
+### Task 的执行顺序
+
+Task 的执行顺序完全由 Method 的 SubTasks 数组顺序决定
+
+SubTasks 是一组按数组顺序执行的 Task 列表。处理每个 Task 时:
+
+- 如果是原子任务 → 直接消耗(进 Plan)
+- 如果是复合任务 → 进入它的 Method 筛选流程, 选中一个 Method 后,把该 Method 的 SubTasks 插在当前位置,继续处理
+- 当前 Task(及其所有子孙)全部处理完后, 回到外层 SubTasks 的下一个 Task
+
+```cpp
+Method RangedAttack
+  SubTasks: [EnsureAmmo, MoveToCover, ShootEnemy]
+             ↑           ↑            ↑
+             先          再           最后
+```
+
+假设 `EnsureAmmo` 是复合任务，`MoveToCover` 和 `ShootEnemy` 是原子任务
+
+```cpp
+HandleEnemy (复合)
+└── Method RangedAttack
+    SubTasks: [EnsureAmmo, MoveToCover, ShootEnemy]
+                 ↑顺序定义点 1
+
+EnsureAmmo (复合)
+└── Method Reload
+    SubTasks: [CheckWeapon, ReloadWeapon]
+                 ↑顺序定义点 2
+
+最后组合起来
+CheckWeapon (原子)
+ReloadWeapon (原子)
+MoveToCover (原子)
+ShootEnemy (原子)
+```
+
+HTN 流程就是深度优先搜索的流程，只不过通过 Method Precondition 进行剪纸，通过 Operator Precondition 进行路径合理性判断，如果判断失败则回滚上层，尝试同一个 Compound Task 的其他 Method
+
 ## 6. 计算过程示例
 
 示例目标：`处理敌人`
