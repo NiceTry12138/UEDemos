@@ -24,7 +24,8 @@
       "**/Binaries": true,
       "**/Build": true,
       "Content/**/__ExternalActors__": true,
-      "Content/**/__ExternalObjects__": true
+      "Content/**/__ExternalObjects__": true,
+      "Plugins/Example/**": false
     },
     "search.exclude": {
       "Content": true,
@@ -34,7 +35,8 @@
       "**/Binaries": true,
       "**/Build": true,
       "Content/**/__ExternalActors__": true,
-      "Content/**/__ExternalObjects__": true
+      "Content/**/__ExternalObjects__": true,
+      "Plugins/Example/**": false
     }
   }
 }

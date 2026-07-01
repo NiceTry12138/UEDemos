@@ -12,6 +12,9 @@ Build/
 /Content/**/__ExternalActors__/
 /Content/**/__ExternalObjects__/
 
+# Example plugins are readable/editable in VS Code but not managed by Git
+/Plugins/Example/**
+
 # Plugin generated
 Plugins/**/Saved/
 Plugins/**/Intermediate/
